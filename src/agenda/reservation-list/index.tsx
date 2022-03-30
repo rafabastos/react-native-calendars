@@ -23,11 +23,12 @@ export type ReservationListProps = ReservationProps & {
   /** Show items only for the selected date. Default = false */
   showOnlySelectedDayItems?: boolean;
   /** callback that gets called when day changes while scrolling agenda list */
+  renderAppointmentHeader?: () => JSX.Element;
+  /* render a view before the appointment list */
   onDayChange?: (day: XDate) => void;
   /** specify what should be rendered instead of ActivityIndicator */
   renderEmptyData?: () => JSX.Element;
   style?: StyleProp<ViewStyle>;
-
   /** onScroll FlatList event */
   onScroll?: (yOffset: number) => void;
   /** Called when the user begins dragging the agenda list **/
@@ -66,7 +67,7 @@ class ReservationList extends Component<ReservationListProps, State> {
     selectedDay: PropTypes.instanceOf(XDate),
     topDay: PropTypes.instanceOf(XDate),
     onDayChange: PropTypes.func,
-    
+    renderAppointmentHeader: PropTypes.func,
     showOnlySelectedDayItems: PropTypes.bool,
     renderEmptyData: PropTypes.func,
 
@@ -265,6 +266,10 @@ class ReservationList extends Component<ReservationListProps, State> {
     return this.props.reservationsKeyExtractor?.(item, index) || `${item?.reservation?.day}${index}`;
   }
 
+  renderAppointmentHeader = () => {
+    if (isFunction(this.props.renderAppointmentHeader)) return this.props.renderAppointmentHeader?.()
+  }
+
   render() {
     const {items, selectedDay, theme, style} = this.props;
     
@@ -276,6 +281,8 @@ class ReservationList extends Component<ReservationListProps, State> {
     }
 
     return (
+      <>
+      {this.renderAppointmentHeader()}
       <FlatList
         ref={this.list}
         style={style}
@@ -295,6 +302,7 @@ class ReservationList extends Component<ReservationListProps, State> {
         onMomentumScrollBegin={this.props.onMomentumScrollBegin}
         onMomentumScrollEnd={this.props.onMomentumScrollEnd}
       />
+      </>
     );
   }
 }
